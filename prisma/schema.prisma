@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Requesters {
+  id Int @id @default(autoincrement())
+
+  // Public information
+  name     String @db.VarChar(25)
+  lastname String @db.VarChar(50)
+  gender   String @db.VarChar(1)
+
+  // Private information
+  birthday DateTime
+  address  String   @db.VarChar(255)
+
+  // School information
+  controlnumber String @unique @db.VarChar(8)
+  semester      String @db.VarChar(1)
+  carrer        String @db.VarChar(255)
+
+  // requested scholarships
+  scholarships Scholarships[]
+}
+
+model Scholarships {
+  id          Int             @id @default(autoincrement())
+  type        ScholarshipType @relation(fields: [typeId], references: [id])
+  typeId      Int
+  approved    Boolean         @default(false)
+  requester   Requesters      @relation(fields: [requesterId], references: [id])
+  requesterId Int
+
+  // Files data
+  Files Files[]
+}
+
+model Files {
+  id            Int          @id @default(autoincrement())
+  path          String       @db.VarChar(255)
+  name          String       @db.VarChar(30)
+  scholarship   Scholarships @relation(fields: [scholarshipId], references: [id])
+  scholarshipId Int
+}
+
+model ScholarshipType {
+  id   Int    @id @default(autoincrement())
+  type String @db.VarChar(50)
+
+  //
+  scholarship Scholarships[]
+}
